@@ -19,7 +19,7 @@
 #define PIN7 2
 
 // FPGA
-#define FPGA_BUSY 14
+#define FPGA_BUSY 13
 
 // Fixed point representation
 #define DECIMAL_POINT 5
@@ -164,7 +164,7 @@ void int_fpga_busy() {
         
         handle_state = FINISH;
         // Read FGPA result
-        result_class = 1;
+        result_class = 1; // TBD
 
         // Display result
         update_lcd();
@@ -387,7 +387,7 @@ void update_lcd() {
   
 
 // FGPA controlling functions
-void start_fpga(){}
+void start_fpga(){} //TBD
 
 
 // ---------- ARDUINO NEEDED FUNCTIONS ----------
