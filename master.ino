@@ -314,7 +314,6 @@ void update_lcd() {
       lcd.setCursor(0, 2);
       lcd.print("Value: ");
       print_bits_lcd(values[id_value]);
-      lcd.setCursor((8 - cursor) + 6, 2);
 
       // Display arrows
       if (id_value != 0) {
@@ -326,6 +325,8 @@ void update_lcd() {
         lcd.setCursor(15, 1);
         lcd.write(byte(1));
       }
+
+      lcd.setCursor((8 - cursor) + 6, 2);
 
     } break;
 
@@ -414,12 +415,12 @@ void setup() {
   pinMode(FPGA_BUSY, INPUT_PULLUP);
   attachInterrupt(FPGA_BUSY, int_fpga_busy, FALLING);
 
-  Serial.begin(9600);
   init_lcd();
 
 }
 
 void loop() {
+  Serial.println(handle_state);
   switch (handle_state) {
     case (SET_FEATURES_BIN): {
       lcd.cursor();
