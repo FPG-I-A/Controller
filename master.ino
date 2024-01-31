@@ -424,9 +424,9 @@ void loop() {
   switch (handle_state) {
     case (SET_FEATURES_BIN): {
       lcd.cursor();
-      delay(250);
+      delay(500);
       lcd.noCursor();
-      delay(250);
+      delay(500);
     } break;
   }
 }
