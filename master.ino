@@ -19,7 +19,10 @@
 #define PIN7 2
 
 // FPGA
-#define FPGA_BUSY 13
+#define FPGA_OUT_1 10
+#define FPGA_OUT_2 11
+#define FPGA_BUSY  12
+#define FPGA_INIT  13
 
 // Fixed point representation
 #define DECIMAL_POINT 5
@@ -60,6 +63,9 @@ unsigned int checking_page = 0;
 
 // FPGA
 int result_class = 0;
+int received_input = 0;
+bool defined_class = true;
+
 
 
 // ---------- INTERRUPTS ----------
@@ -163,8 +169,16 @@ void int_fpga_busy() {
       case (PROCESSING): {
         
         handle_state = FINISH;
+        
         // Read FGPA result
-        result_class = 1; // TBD
+        unsigned short class_1 = digitalRead(FPGA_OUT_1);
+        unsigned short class_2 = digitalRead(FPGA_OUT_2);
+        result_class = 0;
+        result_class |= class_1;
+        result_class |= (class_2 << 1);
+        received_input = class_1 + (class_2 << 1);
+
+        defined_class = (result_class == 0) | (result_class == 1) | (result_class == 2);
 
         // Display result
         update_lcd();
@@ -378,10 +392,21 @@ void update_lcd() {
     } break;
 
     case (FINISH): {
-      lcd.print("Process finished");
-      lcd.setCursor(0, 1);
-      lcd.print("Class: ");
-      lcd.print(result_class);
+      if (defined_class) {
+        lcd.print("Process finished");
+        lcd.setCursor(0, 1);
+        lcd.print("Class: ");
+        lcd.print(result_class);
+      }
+      else {
+        lcd.print("Wrong input");
+        lcd.setCursor(0, 1);
+        lcd.print("Received: ");
+        unsigned short received = received_input;
+        lcd.print(received & ( 1 << 0) ? 1 : 0);
+        lcd.print(received & ( 1 << 1) ? 1 : 0);
+      }
+      
     } break;
   }
 }
@@ -412,7 +437,10 @@ void setup() {
   attachInterrupt(IN_START, int_start, FALLING);
 
   // FPGA I/O
+  pinMode(FPGA_OUT_1, INPUT_PULLUP);
+  pinMode(FPGA_OUT_2, INPUT_PULLUP);
   pinMode(FPGA_BUSY, INPUT_PULLUP);
+  pinMode(FPGA_INIT, OUTPUT);
   attachInterrupt(FPGA_BUSY, int_fpga_busy, FALLING);
 
   init_lcd();
